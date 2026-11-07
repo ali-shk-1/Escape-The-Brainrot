@@ -70,19 +70,20 @@ function CreatureFX.Decorate(model, id, mode)
 		local highlight = Instance.new("Highlight")
 		highlight.Adornee = model
 		highlight.FillColor = look.Color
-		highlight.FillTransparency = 0.85
+		highlight.FillTransparency = 0.75
 		highlight.OutlineColor = look.Color
 		highlight.OutlineTransparency = 0
-		highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 		highlight.Parent = model
 	end
 
 	-- colored glow light
-	if mode ~= "carry" and look.LightBrightness > 0 then
+	if mode ~= "carry" and (look.LightBrightness or 0) > 0 then
 		local light = Instance.new("PointLight")
 		light.Color = look.Color
-		light.Brightness = look.LightBrightness
-		light.Range = 8 + scale * 4
+		light.Brightness = look.LightBrightness * 1.5
+		light.Range = 12 + scale * 5
+		light.Shadows = false
 		light.Parent = primary
 	end
 

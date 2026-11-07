@@ -10,11 +10,11 @@ Config.Player = {
 Config.Player.BaseCapacity = 1 -- creatures you can carry (upgrades come in M5)
 
 Config.Rarities = {
-	Common    = { Color = Color3.fromRGB(201, 209, 217), Scale = 1.0,  LightBrightness = 0,   Outline = false, Particles = 0 },
-	Uncommon  = { Color = Color3.fromRGB(74, 222, 128),  Scale = 1.1,  LightBrightness = 0.6, Outline = false, Particles = 0 },
-	Rare      = { Color = Color3.fromRGB(56, 189, 248),  Scale = 1.25, LightBrightness = 1.2, Outline = true,  Particles = 0 },
-	Epic      = { Color = Color3.fromRGB(192, 132, 252), Scale = 1.4,  LightBrightness = 2,   Outline = true,  Particles = 6 },
-	Legendary = { Color = Color3.fromRGB(251, 191, 36),  Scale = 1.6,  LightBrightness = 3,   Outline = true,  Particles = 14 },
+	Common    = { Color = Color3.fromRGB(226, 232, 240), Scale = 1.0,  LightBrightness = 0.5, Outline = false, Particles = 0 },
+	Uncommon  = { Color = Color3.fromRGB(74, 222, 128),  Scale = 1.15, LightBrightness = 1.2, Outline = false, Particles = 0 },
+	Rare      = { Color = Color3.fromRGB(56, 189, 248),  Scale = 1.3,  LightBrightness = 2.0, Outline = true,  Particles = 0 },
+	Epic      = { Color = Color3.fromRGB(192, 132, 252), Scale = 1.45, LightBrightness = 2.8, Outline = true,  Particles = 8 },
+	Legendary = { Color = Color3.fromRGB(251, 191, 36),  Scale = 1.65, LightBrightness = 3.6, Outline = true,  Particles = 16 },
 }
 
 -- Income = coins per second while stored in a stall (used from M3)
