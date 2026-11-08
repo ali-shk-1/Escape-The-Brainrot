@@ -11,23 +11,24 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 ---------------------------------------------------------------------
--- Theme
+-- Sharp, High-Contrast Arcade Theme
 ---------------------------------------------------------------------
 local Theme = {
-	Bg = Color3.fromRGB(22, 18, 45),
-	Panel = Color3.fromRGB(36, 30, 72),
-	Row = Color3.fromRGB(50, 42, 98),
-	Pink = Color3.fromRGB(255, 77, 166),
-	Cyan = Color3.fromRGB(56, 224, 255),
-	Gold = Color3.fromRGB(255, 200, 60),
-	Green = Color3.fromRGB(74, 222, 128),
-	Red = Color3.fromRGB(255, 59, 92),
+	Bg = Color3.fromRGB(18, 14, 38),
+	Panel = Color3.fromRGB(32, 26, 64),
+	Row = Color3.fromRGB(46, 38, 88),
+	RowHover = Color3.fromRGB(60, 50, 110),
+	Pink = Color3.fromRGB(255, 60, 155),
+	Cyan = Color3.fromRGB(0, 220, 255),
+	Gold = Color3.fromRGB(255, 195, 30),
+	Green = Color3.fromRGB(45, 230, 110),
+	Red = Color3.fromRGB(255, 45, 80),
 	Text = Color3.fromRGB(255, 255, 255),
-	Muted = Color3.fromRGB(190, 180, 230),
-	Dark = Color3.fromRGB(20, 20, 30),
+	TextDim = Color3.fromRGB(210, 200, 240),
+	Dark = Color3.fromRGB(15, 10, 25),
 }
 local TITLE_FONT = Enum.Font.FredokaOne
-local BODY_FONT = Enum.Font.GothamMedium
+local BODY_FONT = Enum.Font.FredokaOne
 
 ---------------------------------------------------------------------
 -- Helpers
@@ -48,7 +49,7 @@ end
 local function stroke(inst, color, thickness)
 	return make("UIStroke", {
 		Color = color,
-		Thickness = thickness or 2,
+		Thickness = thickness or 2.5,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 	}, inst)
 end
@@ -59,7 +60,7 @@ end
 
 -- 1234 -> "1,234", 25000 -> "25.0K", 3200000 -> "3.20M"
 local function fmt(n)
-	n = math.floor(n)
+	n = math.floor(n or 0)
 	if n >= 1e9 then
 		return string.format("%.2fB", n / 1e9)
 	elseif n >= 1e6 then
@@ -78,28 +79,28 @@ local function playSfx(name)
 	end
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://" .. id
-	sound.Volume = 0.6
+	sound.Volume = 0.7
 	sound.Parent = SoundService
 	sound:Play()
-	Debris:AddItem(sound, 5)
+	Debris:AddItem(sound, 4)
 end
 
--- hover and press "pop" animation
+-- Tactile juicy button pop
 local function animate(button)
 	local scale = make("UIScale", { Scale = 1 }, button)
 	local function to(value)
-		TweenService:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = value }):Play()
+		TweenService:Create(scale, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = value }):Play()
 	end
-	button.MouseEnter:Connect(function() to(1.06) end)
-	button.MouseLeave:Connect(function() to(1) end)
-	button.MouseButton1Down:Connect(function() to(0.94) end)
-	button.MouseButton1Up:Connect(function() to(1.06) end)
+	button.MouseEnter:Connect(function() to(1.05) end)
+	button.MouseLeave:Connect(function() to(1.0) end)
+	button.MouseButton1Down:Connect(function() to(0.93) end)
+	button.MouseButton1Up:Connect(function() to(1.05) end)
 end
 
 ---------------------------------------------------------------------
--- Screens
+-- Screen Containers
 ---------------------------------------------------------------------
-local gui = make("ScreenGui", { Name = "EscapeUI", ResetOnSpawn = false }, playerGui)
+local gui = make("ScreenGui", { Name = "EscapeUI", ResetOnSpawn = false, DisplayOrder = 2 }, playerGui)
 local fxGui = make("ScreenGui", { Name = "EscapeFX", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 10 }, playerGui)
 
 local flash = make("Frame", {
@@ -110,16 +111,14 @@ local flash = make("Frame", {
 
 local function flashScreen(color)
 	flash.BackgroundColor3 = color
-	flash.BackgroundTransparency = 0.7
-	TweenService:Create(flash, TweenInfo.new(0.5), { BackgroundTransparency = 1 }):Play()
+	flash.BackgroundTransparency = 0.6
+	TweenService:Create(flash, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
 end
 
 local function shakeCamera(duration, strength)
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
-	if not hum then
-		return
-	end
+	if not hum then return end
 	task.spawn(function()
 		local started = os.clock()
 		while os.clock() - started < duration do
@@ -142,25 +141,32 @@ Remotes:WaitForChild("Sfx").OnClientEvent:Connect(function(name)
 		flashScreen(sfxColors[name])
 	end
 	if name == "Caught" then
-		shakeCamera(0.4, 1.2)
+		shakeCamera(0.4, 1.4)
 	end
 end)
 
 ---------------------------------------------------------------------
--- HUD: coin pill + carry pill
+-- Modern Top Arcade HUD: Coins + Carry Counters
 ---------------------------------------------------------------------
-local coinPill = make("Frame", {
+local hudContainer = make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, 8),
+	Position = UDim2.new(0.5, 0, 0, 10),
+	Size = UDim2.fromOffset(380, 56),
+	BackgroundTransparency = 1,
+}, gui)
+
+-- Main Coin Pill
+local coinPill = make("Frame", {
+	Position = UDim2.fromOffset(0, 0),
 	Size = UDim2.fromOffset(230, 54),
 	BackgroundColor3 = Theme.Panel,
-}, gui)
+}, hudContainer)
 round(coinPill, 27)
 stroke(coinPill, Theme.Gold, 3)
-gradient(coinPill, Theme.Panel, Theme.Bg, 90)
+gradient(coinPill, Color3.fromRGB(48, 38, 86), Color3.fromRGB(24, 18, 48), 90)
 
 make("TextLabel", {
-	Position = UDim2.fromOffset(10, 7),
+	Position = UDim2.fromOffset(8, 7),
 	Size = UDim2.fromOffset(40, 40),
 	BackgroundTransparency = 1,
 	Text = "🪙",
@@ -168,49 +174,75 @@ make("TextLabel", {
 }, coinPill)
 
 local coinText = make("TextLabel", {
-	Position = UDim2.fromOffset(56, 3),
-	Size = UDim2.new(1, -66, 0, 31),
+	Position = UDim2.fromOffset(52, 4),
+	Size = UDim2.new(1, -60, 0, 28),
 	BackgroundTransparency = 1,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	Font = TITLE_FONT,
 	TextScaled = true,
 	TextColor3 = Theme.Gold,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(20, 15, 30),
 	Text = "0",
 }, coinPill)
 
 local incomeText = make("TextLabel", {
-	Position = UDim2.fromOffset(56, 34),
-	Size = UDim2.new(1, -66, 0, 16),
+	Position = UDim2.fromOffset(52, 32),
+	Size = UDim2.new(1, -60, 0, 18),
 	BackgroundTransparency = 1,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	Font = BODY_FONT,
 	TextSize = 14,
 	TextColor3 = Theme.Green,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(10, 40, 15),
 	Text = "+0/s",
 }, coinPill)
 
-local carryPill = make("TextLabel", {
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, 68),
-	Size = UDim2.fromOffset(200, 28),
+-- Carry & Base Slot Pill
+local carryPill = make("Frame", {
+	Position = UDim2.fromOffset(238, 0),
+	Size = UDim2.fromOffset(142, 54),
 	BackgroundColor3 = Theme.Panel,
-	TextColor3 = Theme.Text,
-	Font = TITLE_FONT,
-	TextSize = 16,
-	Text = "",
-}, gui)
-round(carryPill, 14)
-stroke(carryPill, Theme.Cyan, 2)
+}, hudContainer)
+round(carryPill, 27)
+stroke(carryPill, Theme.Cyan, 3)
+gradient(carryPill, Color3.fromRGB(48, 38, 86), Color3.fromRGB(24, 18, 48), 90)
 
+local carryText = make("TextLabel", {
+	Position = UDim2.fromOffset(10, 4),
+	Size = UDim2.new(1, -20, 0, 24),
+	BackgroundTransparency = 1,
+	Font = TITLE_FONT,
+	TextSize = 15,
+	TextColor3 = Theme.Cyan,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(10, 30, 45),
+	Text = "🎒 0/1",
+}, carryPill)
+
+local stallText = make("TextLabel", {
+	Position = UDim2.fromOffset(10, 28),
+	Size = UDim2.new(1, -20, 0, 22),
+	BackgroundTransparency = 1,
+	Font = TITLE_FONT,
+	TextSize = 14,
+	TextColor3 = Theme.Pink,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(40, 10, 30),
+	Text = "🏠 0/3",
+}, carryPill)
+
+-- Floating Coin Popups
 local function showCoinPopup(amount)
 	if amount <= 0 then return end
 	local popup = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, math.random(-40, 40), 0, 58),
-		Size = UDim2.fromOffset(120, 24),
+		Position = UDim2.new(0.5, math.random(-50, 50), 0, 68),
+		Size = UDim2.fromOffset(140, 28),
 		BackgroundTransparency = 1,
 		Font = TITLE_FONT,
-		TextSize = 18,
+		TextSize = 22,
 		TextColor3 = Theme.Gold,
 		TextStrokeColor3 = Color3.fromRGB(20, 15, 30),
 		TextStrokeTransparency = 0,
@@ -219,9 +251,9 @@ local function showCoinPopup(amount)
 
 	local tween = TweenService:Create(
 		popup,
-		TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		TweenInfo.new(0.85, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
 		{
-			Position = popup.Position - UDim2.fromOffset(0, 36),
+			Position = popup.Position - UDim2.fromOffset(0, 42),
 			TextTransparency = 1,
 			TextStrokeTransparency = 1,
 		}
@@ -244,13 +276,8 @@ local function refreshHud()
 
 	coinText.Text = fmt(currentCoins)
 	incomeText.Text = "+" .. fmt(player:GetAttribute("IncomePerSec") or 0) .. "/s"
-	carryPill.Text = string.format(
-		"🎒 %d/%d     🏠 %d/%d",
-		player:GetAttribute("CarryCount") or 0,
-		player:GetAttribute("Capacity") or 1,
-		player:GetAttribute("StoredCount") or 0,
-		player:GetAttribute("Slots") or Config.BaseSlots
-	)
+	carryText.Text = string.format("🎒 %d/%d CARRY", player:GetAttribute("CarryCount") or 0, player:GetAttribute("Capacity") or 1)
+	stallText.Text = string.format("🏠 %d/%d STALL", player:GetAttribute("StoredCount") or 0, player:GetAttribute("Slots") or Config.BaseSlots)
 end
 
 for _, attr in ipairs({ "IncomePerSec", "CarryCount", "Capacity", "StoredCount", "Slots" }) do
@@ -263,22 +290,24 @@ task.spawn(function()
 end)
 
 ---------------------------------------------------------------------
--- Toast messages (slide in from the top)
+-- Toast Messages (Slide in from top)
 ---------------------------------------------------------------------
 local toast = make("TextLabel", {
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, -70),
-	Size = UDim2.new(0.9, 0, 0, 40),
+	Position = UDim2.new(0.5, 0, 0, -80),
+	Size = UDim2.new(0.9, 0, 0, 44),
 	BackgroundColor3 = Theme.Pink,
-	TextColor3 = Theme.Text,
+	TextColor3 = Color3.new(1, 1, 1),
 	Font = TITLE_FONT,
 	TextSize = 20,
 	TextWrapped = true,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(30, 10, 20),
 	Text = "",
 }, gui)
-make("UISizeConstraint", { MaxSize = Vector2.new(440, 60) }, toast)
-round(toast, 20)
-stroke(toast, Color3.new(1, 1, 1), 2)
+make("UISizeConstraint", { MaxSize = Vector2.new(460, 64) }, toast)
+round(toast, 22)
+stroke(toast, Color3.new(1, 1, 1), 3)
 
 local toastId = 0
 Remotes:WaitForChild("Notify").OnClientEvent:Connect(function(text)
@@ -288,67 +317,75 @@ Remotes:WaitForChild("Notify").OnClientEvent:Connect(function(text)
 	TweenService:Create(
 		toast,
 		TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ Position = UDim2.new(0.5, 0, 0, 104) }
+		{ Position = UDim2.new(0.5, 0, 0, 72) }
 	):Play()
-	task.delay(3, function()
+	task.delay(3.2, function()
 		if toastId == myId then
-			TweenService:Create(toast, TweenInfo.new(0.25), { Position = UDim2.new(0.5, 0, 0, -70) }):Play()
+			TweenService:Create(toast, TweenInfo.new(0.25), { Position = UDim2.new(0.5, 0, 0, -80) }):Play()
 		end
 	end)
 end)
 
 ---------------------------------------------------------------------
--- Shop window
+-- High-Impact SHOP Button & Window
 ---------------------------------------------------------------------
 local shopButton = make("TextButton", {
 	AnchorPoint = Vector2.new(0, 0.5),
-	Position = UDim2.new(0, 12, 0.5, 0),
-	Size = UDim2.fromOffset(110, 50),
+	Position = UDim2.new(0, 14, 0.5, -20),
+	Size = UDim2.fromOffset(125, 54),
 	BackgroundColor3 = Theme.Pink,
-	TextColor3 = Theme.Text,
+	TextColor3 = Color3.new(1, 1, 1),
 	Font = TITLE_FONT,
 	TextSize = 22,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(30, 5, 20),
 	Text = "🛍 SHOP",
 }, gui)
-round(shopButton, 14)
-stroke(shopButton, Color3.new(1, 1, 1), 3)
+round(shopButton, 16)
+stroke(shopButton, Color3.new(1, 1, 1), 3.5)
+gradient(shopButton, Color3.fromRGB(255, 90, 180), Color3.fromRGB(220, 30, 110), 90)
 animate(shopButton)
 
+-- Shop Modal Frame
 local panel = make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.5),
-	Size = UDim2.fromScale(0.92, 0.8),
+	Size = UDim2.fromScale(0.92, 0.82),
 	BackgroundColor3 = Theme.Bg,
 	Visible = false,
 }, gui)
-make("UISizeConstraint", { MinSize = Vector2.new(280, 300), MaxSize = Vector2.new(480, 430) }, panel)
-round(panel, 18)
-stroke(panel, Theme.Pink, 3)
-gradient(panel, Theme.Panel, Theme.Bg, 90)
+make("UISizeConstraint", { MinSize = Vector2.new(300, 320), MaxSize = Vector2.new(500, 450) }, panel)
+round(panel, 20)
+stroke(panel, Theme.Pink, 3.5)
+gradient(panel, Color3.fromRGB(36, 28, 68), Theme.Bg, 90)
 local panelScale = make("UIScale", { Scale = 1 }, panel)
 
+-- Header Title
 make("TextLabel", {
-	Position = UDim2.fromOffset(14, 8),
-	Size = UDim2.new(1, -70, 0, 34),
+	Position = UDim2.fromOffset(16, 8),
+	Size = UDim2.new(1, -70, 0, 36),
 	BackgroundTransparency = 1,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	Font = TITLE_FONT,
-	TextSize = 26,
+	TextSize = 28,
 	TextColor3 = Theme.Text,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(15, 10, 25),
 	Text = "🛍 MALL SHOP",
 }, panel)
 
 local closeButton = make("TextButton", {
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, -10, 0, 8),
-	Size = UDim2.fromOffset(34, 34),
+	Size = UDim2.fromOffset(36, 36),
 	BackgroundColor3 = Theme.Red,
 	TextColor3 = Theme.Text,
 	Font = TITLE_FONT,
-	TextSize = 20,
+	TextSize = 22,
 	Text = "✕",
 }, panel)
-round(closeButton, 17)
+round(closeButton, 18)
+stroke(closeButton, Color3.new(1, 1, 1), 2)
 animate(closeButton)
 
 local shopOpen = false
@@ -357,14 +394,14 @@ local function setShop(open)
 	playSfx("Click")
 	if open then
 		panel.Visible = true
-		panelScale.Scale = 0.8
+		panelScale.Scale = 0.85
 		TweenService:Create(
 			panelScale,
 			TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
 			{ Scale = 1 }
 		):Play()
 	else
-		local tween = TweenService:Create(panelScale, TweenInfo.new(0.15), { Scale = 0.8 })
+		local tween = TweenService:Create(panelScale, TweenInfo.new(0.15), { Scale = 0.85 })
 		tween:Play()
 		tween.Completed:Once(function()
 			if not shopOpen then
@@ -380,10 +417,10 @@ closeButton.Activated:Connect(function()
 	setShop(false)
 end)
 
--- tabs
+-- Navigation Tabs
 local tabBar = make("Frame", {
-	Position = UDim2.fromOffset(8, 48),
-	Size = UDim2.new(1, -16, 0, 36),
+	Position = UDim2.fromOffset(10, 48),
+	Size = UDim2.new(1, -20, 0, 38),
 	BackgroundTransparency = 1,
 }, panel)
 make("UIListLayout", {
@@ -393,8 +430,8 @@ make("UIListLayout", {
 }, tabBar)
 
 local pageHolder = make("Frame", {
-	Position = UDim2.fromOffset(8, 92),
-	Size = UDim2.new(1, -16, 1, -100),
+	Position = UDim2.fromOffset(10, 94),
+	Size = UDim2.new(1, -20, 1, -104),
 	BackgroundTransparency = 1,
 }, panel)
 
@@ -427,6 +464,7 @@ for i, def in ipairs(tabDefs) do
 	}, tabBar)
 	make("UITextSizeConstraint", { MaxTextSize = 16 }, button)
 	round(button, 10)
+	stroke(button, Color3.fromRGB(70, 60, 120), 2)
 	animate(button)
 	button.Activated:Connect(function()
 		playSfx("Click")
@@ -439,7 +477,7 @@ for i, def in ipairs(tabDefs) do
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		ScrollBarThickness = 4,
+		ScrollBarThickness = 5,
 		ScrollBarImageColor3 = Theme.Pink,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(),
@@ -449,50 +487,56 @@ for i, def in ipairs(tabDefs) do
 	pages[def[1]] = page
 end
 
--- one reusable row: title, description, buy button
+-- Reusable high-contrast item row
 local function makeRow(page, title, desc, buttonText, buttonColor, onClick)
 	local row = make("Frame", {
-		Size = UDim2.new(1, -6, 0, 72),
+		Size = UDim2.new(1, -6, 0, 74),
 		BackgroundColor3 = Theme.Row,
 		LayoutOrder = #page:GetChildren() + 1,
 	}, page)
 	round(row, 12)
+	stroke(row, Color3.fromRGB(75, 65, 130), 2)
 
 	make("TextLabel", {
-		Position = UDim2.fromOffset(10, 6),
-		Size = UDim2.new(1, -130, 0, 24),
+		Position = UDim2.fromOffset(12, 6),
+		Size = UDim2.new(1, -135, 0, 26),
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Font = TITLE_FONT,
-		TextSize = 18,
+		TextSize = 19,
 		TextColor3 = Theme.Text,
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Color3.fromRGB(15, 10, 25),
 		Text = title,
 	}, row)
 
 	local descLabel = make("TextLabel", {
-		Position = UDim2.fromOffset(10, 30),
-		Size = UDim2.new(1, -130, 0, 36),
+		Position = UDim2.fromOffset(12, 32),
+		Size = UDim2.new(1, -135, 0, 36),
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		TextWrapped = true,
 		Font = BODY_FONT,
-		TextSize = 12,
-		TextColor3 = Theme.Muted,
+		TextSize = 13,
+		TextColor3 = Theme.TextDim,
 		Text = desc,
 	}, row)
 
 	local button = make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -8, 0.5, 0),
-		Size = UDim2.fromOffset(108, 46),
+		Size = UDim2.fromOffset(112, 48),
 		BackgroundColor3 = buttonColor,
-		TextColor3 = Theme.Dark,
+		TextColor3 = Color3.new(1, 1, 1),
 		Font = TITLE_FONT,
-		TextSize = 18,
+		TextSize = 19,
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Color3.fromRGB(15, 10, 25),
 		Text = buttonText,
 	}, row)
-	round(button, 10)
+	round(button, 12)
+	stroke(button, Color3.new(1, 1, 1), 2.5)
 	animate(button)
 	button.Activated:Connect(function()
 		playSfx("Click")
@@ -502,11 +546,9 @@ local function makeRow(page, title, desc, buttonText, buttonColor, onClick)
 	return button, descLabel
 end
 
--- show real Robux prices from Roblox
+-- Query Robux price
 local function loadPrice(button, id, infoType)
-	if id == 0 then
-		return
-	end
+	if id == 0 then return end
 	task.spawn(function()
 		local ok, info = pcall(function()
 			return MarketplaceService:GetProductInfo(id, infoType)
@@ -518,7 +560,7 @@ local function loadPrice(button, id, infoType)
 end
 
 ---------------------------------------------------------------------
--- Upgrades tab (coins)
+-- Upgrades Tab (Coins)
 ---------------------------------------------------------------------
 local upgradeRows = {}
 
@@ -526,10 +568,10 @@ local function refreshUpgrades()
 	for key, row in pairs(upgradeRows) do
 		local def = Config.Upgrades[key]
 		local level = player:GetAttribute(key .. "Level") or 0
-		row.desc.Text = string.format("Lv %d/%d - %s", level, def.Max, row.base)
+		row.desc.Text = string.format("Level %d/%d - %s", level, def.Max, row.base)
 		if level >= def.Max then
-			row.button.Text = "MAX"
-			row.button.BackgroundColor3 = Theme.Muted
+			row.button.Text = "MAXED"
+			row.button.BackgroundColor3 = Color3.fromRGB(90, 85, 120)
 		else
 			row.button.Text = fmt(Config.UpgradeCost(key, level)) .. " 🪙"
 			row.button.BackgroundColor3 = Theme.Green
@@ -538,9 +580,9 @@ local function refreshUpgrades()
 end
 
 local upgradeInfo = {
-	{ "Speed", "⚡ Speed", "Run faster to escape the guard." },
-	{ "Capacity", "🎒 Carry", "Carry more creatures per trip." },
-	{ "Slots", "🏠 Stall Slots", "Store more creatures to earn more." },
+	{ "Speed", "⚡ Speed", "Sprint faster to outrun Big Gus." },
+	{ "Capacity", "🎒 Capacity", "Carry more creatures per trip." },
+	{ "Slots", "🏠 Stall Slots", "Store more creatures for bigger income." },
 }
 for _, info in ipairs(upgradeInfo) do
 	local key = info[1]
@@ -553,7 +595,7 @@ end
 refreshUpgrades()
 
 ---------------------------------------------------------------------
--- Passes tab (Robux)
+-- Passes Tab (Robux)
 ---------------------------------------------------------------------
 local passRows = {}
 
@@ -561,23 +603,21 @@ local function refreshPasses()
 	for key, button in pairs(passRows) do
 		if player:GetAttribute(key) then
 			button.Text = "OWNED ✔"
-			button.BackgroundColor3 = Theme.Muted
+			button.BackgroundColor3 = Color3.fromRGB(90, 85, 120)
 		end
 	end
 end
 
 local passInfo = {
-	{ "DoubleCoins", "💰 2x Coins", "Double your income forever!" },
-	{ "SuperSpeed", "🚀 Super Speed", "+8 walk speed. Outrun the guard!" },
-	{ "CarryMore", "🎒 Carry +2", "Grab 2 more creatures every run." },
-	{ "VIP", "👑 VIP", "+25% coins and +2 stall slots." },
+	{ "DoubleCoins", "💰 2x Coins", "Double all creature income forever!" },
+	{ "SuperSpeed", "🚀 Super Speed", "+8 permanent sprint speed boost!" },
+	{ "CarryMore", "🎒 Carry +2", "Hold 2 extra creatures every run." },
+	{ "VIP", "👑 VIP Pass", "+25% coins bonus & +2 extra stall slots." },
 }
 for _, info in ipairs(passInfo) do
 	local key = info[1]
 	local button = makeRow(pages.Passes, info[2], info[3], "BUY", Theme.Gold, function()
-		if player:GetAttribute(key) then
-			return
-		end
+		if player:GetAttribute(key) then return end
 		local id = Config.Passes[key]
 		if id == 0 then
 			warn("Set Config.Passes." .. key .. " to the real pass ID")
@@ -592,14 +632,12 @@ end
 refreshPasses()
 
 ---------------------------------------------------------------------
--- Coins and crates tab (Robux)
+-- Coins & Crates Tab (Robux)
 ---------------------------------------------------------------------
 local ORDER = { "Common", "Uncommon", "Rare", "Epic", "Legendary" }
 local function oddsText(weights)
 	local total = 0
-	for _, w in pairs(weights) do
-		total += w
-	end
+	for _, w in pairs(weights) do total += w end
 	local parts = {}
 	for _, rarity in ipairs(ORDER) do
 		if weights[rarity] then
@@ -611,9 +649,9 @@ local function oddsText(weights)
 end
 
 local productInfo = {
-	{ "CoinsSmall", "💰 Small Coin Pack", "Get " .. fmt(Config.CoinPackAmounts.CoinsSmall) .. " coins instantly." },
-	{ "CoinsMedium", "💰 Medium Coin Pack", "Get " .. fmt(Config.CoinPackAmounts.CoinsMedium) .. " coins instantly." },
-	{ "CoinsLarge", "💰 Large Coin Pack", "Get " .. fmt(Config.CoinPackAmounts.CoinsLarge) .. " coins instantly." },
+	{ "CoinsSmall", "💰 Small Coin Pack", "Instant +" .. fmt(Config.CoinPackAmounts.CoinsSmall) .. " coins!" },
+	{ "CoinsMedium", "💰 Medium Coin Pack", "Instant +" .. fmt(Config.CoinPackAmounts.CoinsMedium) .. " coins!" },
+	{ "CoinsLarge", "💰 Large Coin Pack", "Instant +" .. fmt(Config.CoinPackAmounts.CoinsLarge) .. " coins!" },
 	{ "LuckyCrate", "🎁 Lucky Crate", "Odds: " .. oddsText(Config.Crates.LuckyCrate) },
 	{ "MegaCrate", "💎 Mega Crate", "Odds: " .. oddsText(Config.Crates.MegaCrate) },
 }
@@ -631,33 +669,36 @@ for _, info in ipairs(productInfo) do
 end
 
 ---------------------------------------------------------------------
--- Codes tab
+-- Codes Tab
 ---------------------------------------------------------------------
 local codeBox = make("TextBox", {
-	Size = UDim2.new(1, -6, 0, 46),
+	Size = UDim2.new(1, -6, 0, 48),
 	BackgroundColor3 = Theme.Row,
 	TextColor3 = Theme.Text,
-	PlaceholderText = "Type a code here...",
-	PlaceholderColor3 = Theme.Muted,
+	PlaceholderText = "Type code here...",
+	PlaceholderColor3 = Theme.TextDim,
 	Font = TITLE_FONT,
 	TextSize = 20,
 	Text = "",
 	ClearTextOnFocus = false,
 	LayoutOrder = 1,
 }, pages.Codes)
-round(codeBox, 10)
-stroke(codeBox, Theme.Cyan, 2)
+round(codeBox, 12)
+stroke(codeBox, Theme.Cyan, 2.5)
 
 local redeemButton = make("TextButton", {
-	Size = UDim2.new(1, -6, 0, 46),
+	Size = UDim2.new(1, -6, 0, 48),
 	BackgroundColor3 = Theme.Green,
-	TextColor3 = Theme.Dark,
+	TextColor3 = Color3.new(1, 1, 1),
 	Font = TITLE_FONT,
-	TextSize = 20,
+	TextSize = 22,
+	TextStrokeTransparency = 0,
+	TextStrokeColor3 = Color3.fromRGB(10, 40, 15),
 	Text = "REDEEM",
 	LayoutOrder = 2,
 }, pages.Codes)
-round(redeemButton, 10)
+round(redeemButton, 12)
+stroke(redeemButton, Color3.new(1, 1, 1), 2.5)
 animate(redeemButton)
 redeemButton.Activated:Connect(function()
 	playSfx("Click")
@@ -665,13 +706,13 @@ redeemButton.Activated:Connect(function()
 end)
 
 make("TextLabel", {
-	Size = UDim2.new(1, -6, 0, 40),
+	Size = UDim2.new(1, -6, 0, 42),
 	BackgroundTransparency = 1,
 	TextWrapped = true,
 	Font = BODY_FONT,
-	TextSize = 13,
-	TextColor3 = Theme.Muted,
-	Text = "Join our group and Discord for new codes with every update!",
+	TextSize = 14,
+	TextColor3 = Theme.TextDim,
+	Text = "Join our group & Discord for exclusive codes with every update!",
 	LayoutOrder = 3,
 }, pages.Codes)
 

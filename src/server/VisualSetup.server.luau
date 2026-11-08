@@ -13,84 +13,92 @@ local function getOrCreate(parent, className, name)
 end
 
 ---------------------------------------------------------------------
--- Master Cinematic Mall Lighting (Vibrant, high-brightness arcade feel)
+-- Sharp, High-Energy, Ultra-Bright Arcade Lighting
 ---------------------------------------------------------------------
-Lighting.ClockTime = 21.2
-Lighting.Brightness = 2.6
-Lighting.OutdoorAmbient = Color3.fromRGB(135, 120, 185)
-Lighting.Ambient = Color3.fromRGB(145, 130, 195)
-Lighting.ColorShift_Top = Color3.fromRGB(255, 205, 255)
-Lighting.ColorShift_Bottom = Color3.fromRGB(55, 45, 90)
-Lighting.ExposureCompensation = 0.45 -- Crisp, bright visuals
+-- Remove any blurry DepthOfField
+local oldDof = Lighting:FindFirstChildOfClass("DepthOfFieldEffect")
+if oldDof then oldDof:Destroy() end
+
+Lighting.ClockTime = 14.5 -- Crisp, bright daylight interior balance
+Lighting.Brightness = 3.2 -- High energy, bright & clean!
+Lighting.GlobalShadows = true
+Lighting.Technology = Enum.Technology.Future -- High-end crisp shadows
+
+-- Pure, vivid ambient light so NO corner is dark
+Lighting.OutdoorAmbient = Color3.fromRGB(180, 175, 210)
+Lighting.Ambient = Color3.fromRGB(190, 185, 220)
+Lighting.ColorShift_Top = Color3.fromRGB(255, 240, 255)
+Lighting.ColorShift_Bottom = Color3.fromRGB(100, 90, 130)
+Lighting.ExposureCompensation = 0.55 -- Extra punchy vibrancy
 Lighting.EnvironmentDiffuseScale = 1.0
 Lighting.EnvironmentSpecularScale = 1.0
-Lighting.GlobalShadows = true
 
--- Color Correction: Ultra-rich neon saturation & clean crisp whites
+-- Color Correction: Razor-sharp contrast, punchy saturation, clean whites
 local cc = getOrCreate(Lighting, "ColorCorrectionEffect", "MallColor")
 cc.Brightness = 0.05
-cc.Contrast = 0.18
-cc.Saturation = 0.42
-cc.TintColor = Color3.fromRGB(255, 250, 255)
+cc.Contrast = 0.22 -- High contrast for punchy 3D edges
+cc.Saturation = 0.45 -- Vivid, saturated colors
+cc.TintColor = Color3.fromRGB(255, 255, 255)
 
--- Bloom: Luxurious soft neon highlights without blinding flare
+-- Bloom: Crisp neon pop without any blinding milkiness
 local bloom = getOrCreate(Lighting, "BloomEffect", "MallBloom")
-bloom.Intensity = 0.75
-bloom.Size = 24
-bloom.Threshold = 0.88
+bloom.Intensity = 0.5
+bloom.Size = 16
+bloom.Threshold = 0.92 -- Only true neon glows, rest is crystal sharp
 
--- DepthOfField: Subtle cinematic distance smoothing
-local dof = getOrCreate(Lighting, "DepthOfFieldEffect", "MallDepthOfField")
-dof.FarIntensity = 0.25
-dof.FocusDistance = 25
-dof.InFocusRadius = 60
-dof.NearIntensity = 0
-
--- Atmosphere: Soft atmospheric purple-lavender glow
+-- Atmosphere: 100% Clear, zero fog/blur!
 local atmosphere = getOrCreate(Lighting, "Atmosphere", "MallAtmosphere")
-atmosphere.Density = 0.18
-atmosphere.Offset = 0.12
-atmosphere.Color = Color3.fromRGB(155, 135, 225)
-atmosphere.Decay = Color3.fromRGB(75, 55, 125)
+atmosphere.Density = 0.06 -- Ultra low density for crystal clarity
+atmosphere.Offset = 0
+atmosphere.Color = Color3.fromRGB(180, 160, 240)
+atmosphere.Decay = Color3.fromRGB(100, 80, 160)
 atmosphere.Glare = 0
-atmosphere.Haze = 0.35 -- Crystal clear visibility
+atmosphere.Haze = 0 -- ZERO haze, pure sharpness!
 
 ---------------------------------------------------------------------
--- Concourse Downward SurfaceLights (Broad, soft mall interior glow)
+-- High-Power Overhead Stadium Floodlights (Even, Bright Mall Glow)
 ---------------------------------------------------------------------
 local lightsFolder = getOrCreate(workspace, "Folder", "MallLighting")
-if #lightsFolder:GetChildren() == 0 then
-	local zPositions = { 160, 120, 80, 40, 0, -40, -80, -115 }
-	for i, z in ipairs(zPositions) do
-		local lightFixture = Instance.new("Part")
-		lightFixture.Name = "CeilingLight_" .. i
-		lightFixture.Size = Vector3.new(28, 1.2, 5)
-		lightFixture.Position = Vector3.new(0, 28, z)
-		lightFixture.Anchored = true
-		lightFixture.CanCollide = false
-		lightFixture.CanQuery = false
-		lightFixture.CanTouch = false
-		lightFixture.Material = Enum.Material.Neon
-		lightFixture.Color = Color3.fromRGB(255, 250, 255)
-		lightFixture.Transparency = 0.1
-		lightFixture.Parent = lightsFolder
+lightsFolder:ClearAllChildren()
 
-		-- Downward surface light casts wide, non-glaring ambient floor illumination
-		local surfaceLight = Instance.new("SurfaceLight")
-		surfaceLight.Face = Enum.NormalId.Bottom
-		surfaceLight.Color = (z > 40 and Color3.fromRGB(255, 220, 180))
-			or (z > -60 and Color3.fromRGB(180, 235, 255))
-			or Color3.fromRGB(255, 190, 245)
-		surfaceLight.Brightness = 2.4
-		surfaceLight.Range = 60
-		surfaceLight.Angle = 110
-		surfaceLight.Shadows = false
-		surfaceLight.Parent = lightFixture
-	end
+local zPositions = { 170, 130, 90, 50, 10, -30, -70, -110 }
+for i, z in ipairs(zPositions) do
+	local lightFixture = Instance.new("Part")
+	lightFixture.Name = "StadiumLight_" .. i
+	lightFixture.Size = Vector3.new(32, 1.5, 6)
+	lightFixture.Position = Vector3.new(0, 28, z)
+	lightFixture.Anchored = true
+	lightFixture.CanCollide = false
+	lightFixture.CanQuery = false
+	lightFixture.CanTouch = false
+	lightFixture.Material = Enum.Material.Neon
+	lightFixture.Color = Color3.fromRGB(255, 255, 255)
+	lightFixture.Transparency = 0
+	lightFixture.Parent = lightsFolder
+
+	-- Dual high-output surface lights casting downward
+	local sl = Instance.new("SurfaceLight")
+	sl.Face = Enum.NormalId.Bottom
+	sl.Color = (z > 40 and Color3.fromRGB(255, 235, 210))
+		or (z > -50 and Color3.fromRGB(210, 245, 255))
+		or Color3.fromRGB(255, 210, 250)
+	sl.Brightness = 3.6
+	sl.Range = 75
+	sl.Angle = 120
+	sl.Shadows = false
+	sl.Parent = lightFixture
+
+	-- PointLight fill to eliminate any ceiling gloom
+	local pl = Instance.new("PointLight")
+	pl.Color = sl.Color
+	pl.Brightness = 2.0
+	pl.Range = 50
+	pl.Shadows = false
+	pl.Parent = lightFixture
 end
 
 ---------------------------------------------------------------------
--- Glowing Drop Zones with Vertical Light Beacons (Perfect Grid Alignment)
+-- Vibrant Glowing Drop Zones & Beacons
 ---------------------------------------------------------------------
 local bases = workspace:WaitForChild("Bases", 10)
 if bases then
@@ -98,64 +106,51 @@ if bases then
 		local zone = base:FindFirstChild("DropZone")
 		if zone then
 			zone.Material = Enum.Material.Neon
-			zone.Color = Color3.fromRGB(74, 222, 128)
-			zone.Transparency = 0.25
+			zone.Color = Color3.fromRGB(50, 255, 120) -- Ultra vivid green
+			zone.Transparency = 0.15
 
 			local surface = zone:FindFirstChildOfClass("SurfaceGui")
 			if not surface then
 				surface = Instance.new("SurfaceGui")
 				surface.Face = Enum.NormalId.Top
 				surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-				surface.PixelsPerStud = 40
+				surface.PixelsPerStud = 45
 				surface.LightInfluence = 0
 				surface.Parent = zone
 
 				local label = Instance.new("TextLabel")
 				label.Size = UDim2.fromScale(1, 1)
 				label.BackgroundTransparency = 1
-				label.Text = "⬇ DROP HERE ⬇"
+				label.Text = "⬇ DEPOSIT HERE ⬇"
 				label.TextScaled = true
 				label.Font = Enum.Font.FredokaOne
 				label.TextColor3 = Color3.new(1, 1, 1)
-				label.TextStrokeColor3 = Color3.fromRGB(20, 100, 40)
+				label.TextStrokeColor3 = Color3.fromRGB(0, 80, 20)
 				label.TextStrokeTransparency = 0
 				label.Parent = surface
 			end
 
-			-- Vertical neon beacon shooting into ceiling
 			local beacon = zone:FindFirstChild("Beacon")
 			if not beacon then
 				beacon = Instance.new("Part")
 				beacon.Name = "Beacon"
-				beacon.Size = Vector3.new(3.5, 27, 3.5)
+				beacon.Size = Vector3.new(3, 27, 3)
 				beacon.Position = zone.Position + Vector3.new(0, 13.5, 0)
 				beacon.Anchored = true
 				beacon.CanCollide = false
 				beacon.CanQuery = false
 				beacon.CanTouch = false
 				beacon.Material = Enum.Material.ForceField
-				beacon.Color = Color3.fromRGB(74, 222, 128)
-				beacon.Transparency = 0.78
+				beacon.Color = Color3.fromRGB(50, 255, 120)
+				beacon.Transparency = 0.7
 				beacon.Parent = zone
-
-				TweenService:Create(
-					beacon,
-					TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-					{ Transparency = 0.92 }
-				):Play()
 			end
-
-			TweenService:Create(
-				zone,
-				TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-				{ Transparency = 0.55 }
-			):Play()
 		end
 	end
 end
 
 ---------------------------------------------------------------------
--- Big Gus: Powerful Flashlight + Danger Catch Indicator
+-- Big Gus: High-Visibility Searchlight & Threat Ring
 ---------------------------------------------------------------------
 local guard = workspace:WaitForChild("Guard", 10)
 if guard then
@@ -166,15 +161,15 @@ if guard then
 		local flashlight = head:FindFirstChildOfClass("SpotLight") or Instance.new("SpotLight")
 		flashlight.Face = Enum.NormalId.Front
 		flashlight.Angle = 80
-		flashlight.Range = 60
-		flashlight.Brightness = 4.2
-		flashlight.Color = Color3.fromRGB(255, 245, 215)
+		flashlight.Range = 65
+		flashlight.Brightness = 5.0
+		flashlight.Color = Color3.fromRGB(255, 250, 220)
 		flashlight.Parent = head
 
 		local alert = head:FindFirstChild("AlertGui") or Instance.new("BillboardGui")
 		alert.Name = "AlertGui"
-		alert.Size = UDim2.fromOffset(60, 60)
-		alert.StudsOffset = Vector3.new(0, 4, 0)
+		alert.Size = UDim2.fromOffset(64, 64)
+		alert.StudsOffset = Vector3.new(0, 4.2, 0)
 		alert.AlwaysOnTop = true
 		alert.Enabled = false
 		alert.Parent = head
@@ -186,22 +181,21 @@ if guard then
 			bang.Text = "!"
 			bang.TextScaled = true
 			bang.Font = Enum.Font.FredokaOne
-			bang.TextColor3 = Color3.fromRGB(255, 59, 92)
+			bang.TextColor3 = Color3.fromRGB(255, 40, 60)
 			bang.TextStrokeColor3 = Color3.new(0, 0, 0)
 			bang.TextStrokeTransparency = 0
 			bang.Parent = alert
 		end
 
-		-- Floor Catch Radius Ring
 		if root and not root:FindFirstChild("CatchRing") then
 			local catchRing = Instance.new("Part")
 			catchRing.Name = "CatchRing"
 			catchRing.Shape = Enum.PartType.Cylinder
-			catchRing.Size = Vector3.new(0.15, 10, 10)
+			catchRing.Size = Vector3.new(0.2, 10, 10)
 			catchRing.CFrame = root.CFrame * CFrame.Angles(0, 0, math.rad(90))
 			catchRing.Material = Enum.Material.Neon
-			catchRing.Color = Color3.fromRGB(255, 60, 60)
-			catchRing.Transparency = 0.78
+			catchRing.Color = Color3.fromRGB(255, 40, 60)
+			catchRing.Transparency = 0.7
 			catchRing.CanCollide = false
 			catchRing.CanTouch = false
 			catchRing.CanQuery = false
@@ -215,15 +209,15 @@ if guard then
 			guard:GetAttributeChangedSignal("Chasing"):Connect(function()
 				local chasing = guard:GetAttribute("Chasing") == true
 				alert.Enabled = chasing
-				flashlight.Color = chasing and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(255, 245, 215)
-				catchRing.Transparency = chasing and 0.42 or 0.82
+				flashlight.Color = chasing and Color3.fromRGB(255, 40, 40) or Color3.fromRGB(255, 250, 220)
+				catchRing.Transparency = chasing and 0.35 or 0.75
 			end)
 		end
 	end
 end
 
 ---------------------------------------------------------------------
--- Player Sprint Trail Particles
+-- Sprint Trails
 ---------------------------------------------------------------------
 local function setupPlayerTrails(char)
 	local hrp = char:WaitForChild("HumanoidRootPart", 5)
@@ -232,14 +226,14 @@ local function setupPlayerTrails(char)
 	local trailPart = Instance.new("ParticleEmitter")
 	trailPart.Name = "SpeedTrail"
 	trailPart.Rate = 0
-	trailPart.Speed = NumberRange.new(2, 6)
-	trailPart.Lifetime = NumberRange.new(0.3, 0.5)
+	trailPart.Speed = NumberRange.new(3, 7)
+	trailPart.Lifetime = NumberRange.new(0.25, 0.45)
 	trailPart.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.6),
+		NumberSequenceKeypoint.new(0, 0.7),
 		NumberSequenceKeypoint.new(1, 0),
 	})
 	trailPart.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.3),
+		NumberSequenceKeypoint.new(0, 0.1),
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	trailPart.Color = ColorSequence.new(Color3.fromRGB(56, 224, 255), Color3.fromRGB(255, 77, 166))
@@ -250,7 +244,7 @@ local function setupPlayerTrails(char)
 	if hum then
 		hum.Running:Connect(function(speed)
 			if speed > 22 then
-				trailPart.Rate = 22
+				trailPart.Rate = 28
 			else
 				trailPart.Rate = 0
 			end

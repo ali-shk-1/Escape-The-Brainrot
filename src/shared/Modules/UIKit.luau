@@ -6,20 +6,21 @@ local player = Players.LocalPlayer
 local UIKit = {}
 
 UIKit.Theme = {
-	Bg = Color3.fromRGB(22, 18, 45),
-	Panel = Color3.fromRGB(36, 30, 72),
-	Row = Color3.fromRGB(50, 42, 98),
-	Pink = Color3.fromRGB(255, 77, 166),
-	Cyan = Color3.fromRGB(56, 224, 255),
-	Gold = Color3.fromRGB(255, 200, 60),
-	Green = Color3.fromRGB(74, 222, 128),
-	Red = Color3.fromRGB(255, 59, 92),
+	Bg = Color3.fromRGB(18, 14, 38),
+	Panel = Color3.fromRGB(32, 26, 64),
+	Row = Color3.fromRGB(46, 38, 88),
+	RowHover = Color3.fromRGB(60, 50, 110),
+	Pink = Color3.fromRGB(255, 60, 155),
+	Cyan = Color3.fromRGB(0, 220, 255),
+	Gold = Color3.fromRGB(255, 195, 30),
+	Green = Color3.fromRGB(45, 230, 110),
+	Red = Color3.fromRGB(255, 45, 80),
 	Text = Color3.fromRGB(255, 255, 255),
-	Muted = Color3.fromRGB(160, 150, 200),
-	Dark = Color3.fromRGB(22, 18, 45),
+	Muted = Color3.fromRGB(210, 200, 240),
+	Dark = Color3.fromRGB(15, 10, 25),
 }
 UIKit.TitleFont = Enum.Font.FredokaOne
-UIKit.BodyFont = Enum.Font.GothamBold
+UIKit.BodyFont = Enum.Font.FredokaOne
 
 function UIKit.make(className, props, parent)
 	local inst = Instance.new(className)
@@ -150,9 +151,13 @@ function UIKit.panel(name, title, height, accent)
 		BackgroundColor3 = UIKit.Theme.Bg,
 		Visible = false,
 	}, gui)
-	UIKit.make("UISizeConstraint", { MaxSize = Vector2.new(380, height), MinSize = Vector2.new(260, 100) }, frame)
+	UIKit.make("UISizeConstraint", { MaxSize = Vector2.new(400, height), MinSize = Vector2.new(260, 100) }, frame)
 	UIKit.round(frame, 18)
-	UIKit.stroke(frame, accent or UIKit.Theme.Pink, 3)
+	UIKit.stroke(frame, accent or UIKit.Theme.Pink, 3.5)
+	UIKit.make("UIGradient", {
+		Color = ColorSequence.new(Color3.fromRGB(36, 28, 68), UIKit.Theme.Bg),
+		Rotation = 90,
+	}, frame)
 	local scale = UIKit.make("UIScale", { Scale = 1 }, frame)
 
 	UIKit.make("TextLabel", {
@@ -164,6 +169,8 @@ function UIKit.panel(name, title, height, accent)
 		TextSize = 26,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = accent or UIKit.Theme.Pink,
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Color3.fromRGB(15, 10, 25),
 	}, frame)
 
 	local close = UIKit.make("TextButton", {
@@ -171,13 +178,16 @@ function UIKit.panel(name, title, height, accent)
 		Position = UDim2.new(1, -8, 0, 8),
 		Size = UDim2.fromOffset(38, 38),
 		BackgroundColor3 = UIKit.Theme.Red,
-		Text = "X",
+		Text = "✕",
 		Font = UIKit.TitleFont,
 		TextSize = 22,
 		TextColor3 = UIKit.Theme.Text,
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Color3.fromRGB(30, 5, 15),
 		AutoButtonColor = false,
 	}, frame)
 	UIKit.round(close, 19)
+	UIKit.stroke(close, Color3.new(1, 1, 1), 2.5)
 	UIKit.pop(close)
 
 	local body = UIKit.make("Frame", {
