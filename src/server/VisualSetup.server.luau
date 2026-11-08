@@ -13,74 +13,84 @@ local function getOrCreate(parent, className, name)
 end
 
 ---------------------------------------------------------------------
--- Tuned Neon Midnight Lighting (Crisp visibility + rich contrast)
+-- Master Cinematic Mall Lighting (Vibrant, high-brightness arcade feel)
 ---------------------------------------------------------------------
-Lighting.ClockTime = 20.8
-Lighting.Brightness = 2.2
-Lighting.OutdoorAmbient = Color3.fromRGB(115, 105, 165)
-Lighting.Ambient = Color3.fromRGB(125, 115, 175)
-Lighting.ColorShift_Top = Color3.fromRGB(245, 185, 255)
-Lighting.ColorShift_Bottom = Color3.fromRGB(45, 35, 75)
-Lighting.ExposureCompensation = 0.38
-Lighting.EnvironmentDiffuseScale = 0.85
-Lighting.EnvironmentSpecularScale = 0.85
+Lighting.ClockTime = 21.2
+Lighting.Brightness = 2.6
+Lighting.OutdoorAmbient = Color3.fromRGB(135, 120, 185)
+Lighting.Ambient = Color3.fromRGB(145, 130, 195)
+Lighting.ColorShift_Top = Color3.fromRGB(255, 205, 255)
+Lighting.ColorShift_Bottom = Color3.fromRGB(55, 45, 90)
+Lighting.ExposureCompensation = 0.45 -- Crisp, bright visuals
+Lighting.EnvironmentDiffuseScale = 1.0
+Lighting.EnvironmentSpecularScale = 1.0
 Lighting.GlobalShadows = true
 
--- Color Correction
+-- Color Correction: Ultra-rich neon saturation & clean crisp whites
 local cc = getOrCreate(Lighting, "ColorCorrectionEffect", "MallColor")
-cc.Brightness = 0.04
-cc.Contrast = 0.16
-cc.Saturation = 0.38
-cc.TintColor = Color3.fromRGB(255, 248, 255)
+cc.Brightness = 0.05
+cc.Contrast = 0.18
+cc.Saturation = 0.42
+cc.TintColor = Color3.fromRGB(255, 250, 255)
 
--- Bloom
+-- Bloom: Luxurious soft neon highlights without blinding flare
 local bloom = getOrCreate(Lighting, "BloomEffect", "MallBloom")
-bloom.Intensity = 0.65
+bloom.Intensity = 0.75
 bloom.Size = 24
-bloom.Threshold = 0.85
+bloom.Threshold = 0.88
 
--- Atmosphere
+-- DepthOfField: Subtle cinematic distance smoothing
+local dof = getOrCreate(Lighting, "DepthOfFieldEffect", "MallDepthOfField")
+dof.FarIntensity = 0.25
+dof.FocusDistance = 25
+dof.InFocusRadius = 60
+dof.NearIntensity = 0
+
+-- Atmosphere: Soft atmospheric purple-lavender glow
 local atmosphere = getOrCreate(Lighting, "Atmosphere", "MallAtmosphere")
-atmosphere.Density = 0.20
-atmosphere.Offset = 0.15
-atmosphere.Color = Color3.fromRGB(145, 125, 215)
-atmosphere.Decay = Color3.fromRGB(65, 45, 115)
+atmosphere.Density = 0.18
+atmosphere.Offset = 0.12
+atmosphere.Color = Color3.fromRGB(155, 135, 225)
+atmosphere.Decay = Color3.fromRGB(75, 55, 125)
 atmosphere.Glare = 0
-atmosphere.Haze = 0.5
+atmosphere.Haze = 0.35 -- Crystal clear visibility
 
 ---------------------------------------------------------------------
--- Mall Ceiling Lights (Concourse illumination)
+-- Concourse Downward SurfaceLights (Broad, soft mall interior glow)
 ---------------------------------------------------------------------
 local lightsFolder = getOrCreate(workspace, "Folder", "MallLighting")
 if #lightsFolder:GetChildren() == 0 then
-	local zPositions = { 150, 110, 70, 30, -10, -50, -90, -120 }
+	local zPositions = { 160, 120, 80, 40, 0, -40, -80, -115 }
 	for i, z in ipairs(zPositions) do
-		local lightPart = Instance.new("Part")
-		lightPart.Name = "CeilingLight_" .. i
-		lightPart.Size = Vector3.new(24, 1.2, 4)
-		lightPart.Position = Vector3.new(0, 28, z)
-		lightPart.Anchored = true
-		lightPart.CanCollide = false
-		lightPart.CanQuery = false
-		lightPart.CanTouch = false
-		lightPart.Material = Enum.Material.Neon
-		lightPart.Color = Color3.fromRGB(255, 245, 255)
-		lightPart.Transparency = 0.15
-		lightPart.Parent = lightsFolder
+		local lightFixture = Instance.new("Part")
+		lightFixture.Name = "CeilingLight_" .. i
+		lightFixture.Size = Vector3.new(28, 1.2, 5)
+		lightFixture.Position = Vector3.new(0, 28, z)
+		lightFixture.Anchored = true
+		lightFixture.CanCollide = false
+		lightFixture.CanQuery = false
+		lightFixture.CanTouch = false
+		lightFixture.Material = Enum.Material.Neon
+		lightFixture.Color = Color3.fromRGB(255, 250, 255)
+		lightFixture.Transparency = 0.1
+		lightFixture.Parent = lightsFolder
 
-		local pointLight = Instance.new("PointLight")
-		pointLight.Color = (z > 40 and Color3.fromRGB(255, 210, 170))
-			or (z > -60 and Color3.fromRGB(170, 230, 255))
-			or Color3.fromRGB(255, 180, 245)
-		pointLight.Brightness = 2.0
-		pointLight.Range = 70
-		pointLight.Shadows = false
-		pointLight.Parent = lightPart
+		-- Downward surface light casts wide, non-glaring ambient floor illumination
+		local surfaceLight = Instance.new("SurfaceLight")
+		surfaceLight.Face = Enum.NormalId.Bottom
+		surfaceLight.Color = (z > 40 and Color3.fromRGB(255, 220, 180))
+			or (z > -60 and Color3.fromRGB(180, 235, 255))
+			or Color3.fromRGB(255, 190, 245)
+		surfaceLight.Brightness = 2.4
+		surfaceLight.Range = 60
+		surfaceLight.Angle = 110
+		surfaceLight.Shadows = false
+		surfaceLight.Parent = lightFixture
 	end
 end
 
 ---------------------------------------------------------------------
--- Glowing Drop Zones with Vertical Light Beacons
+-- Glowing Drop Zones with Vertical Light Beacons (Perfect Grid Alignment)
 ---------------------------------------------------------------------
 local bases = workspace:WaitForChild("Bases", 10)
 if bases then
@@ -117,15 +127,15 @@ if bases then
 			if not beacon then
 				beacon = Instance.new("Part")
 				beacon.Name = "Beacon"
-				beacon.Size = Vector3.new(4, 28, 4)
-				beacon.Position = zone.Position + Vector3.new(0, 14, 0)
+				beacon.Size = Vector3.new(3.5, 27, 3.5)
+				beacon.Position = zone.Position + Vector3.new(0, 13.5, 0)
 				beacon.Anchored = true
 				beacon.CanCollide = false
 				beacon.CanQuery = false
 				beacon.CanTouch = false
 				beacon.Material = Enum.Material.ForceField
 				beacon.Color = Color3.fromRGB(74, 222, 128)
-				beacon.Transparency = 0.75
+				beacon.Transparency = 0.78
 				beacon.Parent = zone
 
 				TweenService:Create(
@@ -145,7 +155,7 @@ if bases then
 end
 
 ---------------------------------------------------------------------
--- Guard: Menacing Red Catch Radius & Flashlight
+-- Big Gus: Powerful Flashlight + Danger Catch Indicator
 ---------------------------------------------------------------------
 local guard = workspace:WaitForChild("Guard", 10)
 if guard then
@@ -155,9 +165,9 @@ if guard then
 	if head then
 		local flashlight = head:FindFirstChildOfClass("SpotLight") or Instance.new("SpotLight")
 		flashlight.Face = Enum.NormalId.Front
-		flashlight.Angle = 75
-		flashlight.Range = 55
-		flashlight.Brightness = 3.5
+		flashlight.Angle = 80
+		flashlight.Range = 60
+		flashlight.Brightness = 4.2
 		flashlight.Color = Color3.fromRGB(255, 245, 215)
 		flashlight.Parent = head
 
@@ -187,11 +197,11 @@ if guard then
 			local catchRing = Instance.new("Part")
 			catchRing.Name = "CatchRing"
 			catchRing.Shape = Enum.PartType.Cylinder
-			catchRing.Size = Vector3.new(0.2, 10, 10) -- 5 stud radius
+			catchRing.Size = Vector3.new(0.15, 10, 10)
 			catchRing.CFrame = root.CFrame * CFrame.Angles(0, 0, math.rad(90))
 			catchRing.Material = Enum.Material.Neon
 			catchRing.Color = Color3.fromRGB(255, 60, 60)
-			catchRing.Transparency = 0.75
+			catchRing.Transparency = 0.78
 			catchRing.CanCollide = false
 			catchRing.CanTouch = false
 			catchRing.CanQuery = false
@@ -206,14 +216,14 @@ if guard then
 				local chasing = guard:GetAttribute("Chasing") == true
 				alert.Enabled = chasing
 				flashlight.Color = chasing and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(255, 245, 215)
-				catchRing.Transparency = chasing and 0.45 or 0.82
+				catchRing.Transparency = chasing and 0.42 or 0.82
 			end)
 		end
 	end
 end
 
 ---------------------------------------------------------------------
--- Player Sprint Trail Particles (When upgraded or SuperSpeed)
+-- Player Sprint Trail Particles
 ---------------------------------------------------------------------
 local function setupPlayerTrails(char)
 	local hrp = char:WaitForChild("HumanoidRootPart", 5)
@@ -223,13 +233,13 @@ local function setupPlayerTrails(char)
 	trailPart.Name = "SpeedTrail"
 	trailPart.Rate = 0
 	trailPart.Speed = NumberRange.new(2, 6)
-	trailPart.Lifetime = NumberRange.new(0.3, 0.6)
+	trailPart.Lifetime = NumberRange.new(0.3, 0.5)
 	trailPart.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.7),
+		NumberSequenceKeypoint.new(0, 0.6),
 		NumberSequenceKeypoint.new(1, 0),
 	})
 	trailPart.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.4),
+		NumberSequenceKeypoint.new(0, 0.3),
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	trailPart.Color = ColorSequence.new(Color3.fromRGB(56, 224, 255), Color3.fromRGB(255, 77, 166))
@@ -240,7 +250,7 @@ local function setupPlayerTrails(char)
 	if hum then
 		hum.Running:Connect(function(speed)
 			if speed > 22 then
-				trailPart.Rate = 25
+				trailPart.Rate = 22
 			else
 				trailPart.Rate = 0
 			end
