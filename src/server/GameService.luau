@@ -288,11 +288,13 @@ function GameService.AddCarry(player, id)
 
 	local model = GameService.MakeCreature(id)
 	CreatureFX.Decorate(model, id, "carry")
-	model:PivotTo(hrp.CFrame * CFrame.new(0, 2.5 + #list * 3.5, 0))
+	model:PivotTo(hrp.CFrame * CFrame.new(0, 2.5 + #list * 3.2, 0))
 	for _, obj in ipairs(model:GetDescendants()) do
 		if obj:IsA("BasePart") then
 			obj.Anchored = false
 			obj.CanCollide = false
+			obj.CanTouch = false
+			obj.CanQuery = false
 			obj.Massless = true
 		elseif obj:IsA("ProximityPrompt") then
 			obj:Destroy()
@@ -312,16 +314,25 @@ end
 
 function GameService.ClearCarry(player)
 	local list = carrying[player]
-	if not list then
-		return
-	end
-	for _, item in ipairs(list) do
-		if item.Model then
-			item.Model:Destroy()
+	if list then
+		for _, item in ipairs(list) do
+			if item.Model and item.Model.Parent then
+				item.Model:Destroy()
+			end
 		end
 	end
 	carrying[player] = {}
 	player:SetAttribute("CarryCount", 0)
+
+	-- Secondary cleanup check for any orphaned creature models inside character
+	local char = player.Character
+	if char then
+		for _, child in ipairs(char:GetChildren()) do
+			if child:IsA("Model") and Config.Creatures[child.Name] then
+				child:Destroy()
+			end
+		end
+	end
 end
 
 function GameService.Deposit(player)
