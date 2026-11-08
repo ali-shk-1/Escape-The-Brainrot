@@ -1,5 +1,6 @@
 local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 
 local function getOrCreate(parent, className, name)
 	local inst = parent:FindFirstChild(name)
@@ -14,41 +15,41 @@ end
 ---------------------------------------------------------------------
 -- Tuned Neon Midnight Lighting (Crisp visibility + rich contrast)
 ---------------------------------------------------------------------
-Lighting.ClockTime = 20.5 -- Dusk/night transition for rich deep indigo sky
-Lighting.Brightness = 2.0
-Lighting.OutdoorAmbient = Color3.fromRGB(110, 100, 160)
-Lighting.Ambient = Color3.fromRGB(120, 110, 170) -- Raised so shadows are clearly visible
-Lighting.ColorShift_Top = Color3.fromRGB(240, 180, 255)
-Lighting.ColorShift_Bottom = Color3.fromRGB(40, 30, 70)
-Lighting.ExposureCompensation = 0.35 -- Extra punch so nothing looks dingy
-Lighting.EnvironmentDiffuseScale = 0.8
-Lighting.EnvironmentSpecularScale = 0.8
+Lighting.ClockTime = 20.8
+Lighting.Brightness = 2.2
+Lighting.OutdoorAmbient = Color3.fromRGB(115, 105, 165)
+Lighting.Ambient = Color3.fromRGB(125, 115, 175)
+Lighting.ColorShift_Top = Color3.fromRGB(245, 185, 255)
+Lighting.ColorShift_Bottom = Color3.fromRGB(45, 35, 75)
+Lighting.ExposureCompensation = 0.38
+Lighting.EnvironmentDiffuseScale = 0.85
+Lighting.EnvironmentSpecularScale = 0.85
 Lighting.GlobalShadows = true
 
--- Color Correction: Crisp, rich saturation, clean whites
+-- Color Correction
 local cc = getOrCreate(Lighting, "ColorCorrectionEffect", "MallColor")
 cc.Brightness = 0.04
-cc.Contrast = 0.15
-cc.Saturation = 0.35
-cc.TintColor = Color3.fromRGB(255, 245, 255)
+cc.Contrast = 0.16
+cc.Saturation = 0.38
+cc.TintColor = Color3.fromRGB(255, 248, 255)
 
--- Bloom: Dreamy glow around neon parts without blinding haze
+-- Bloom
 local bloom = getOrCreate(Lighting, "BloomEffect", "MallBloom")
-bloom.Intensity = 0.6
-bloom.Size = 22
+bloom.Intensity = 0.65
+bloom.Size = 24
 bloom.Threshold = 0.85
 
--- Atmosphere: Soft cosmic purple haze
+-- Atmosphere
 local atmosphere = getOrCreate(Lighting, "Atmosphere", "MallAtmosphere")
-atmosphere.Density = 0.22 -- Lowered from 0.28 so far distances remain sharp
+atmosphere.Density = 0.20
 atmosphere.Offset = 0.15
-atmosphere.Color = Color3.fromRGB(140, 120, 210)
-atmosphere.Decay = Color3.fromRGB(60, 40, 110)
+atmosphere.Color = Color3.fromRGB(145, 125, 215)
+atmosphere.Decay = Color3.fromRGB(65, 45, 115)
 atmosphere.Glare = 0
-atmosphere.Haze = 0.6 -- Lowered from 1.2 to eliminate foggy blur
+atmosphere.Haze = 0.5
 
 ---------------------------------------------------------------------
--- Mall Ceiling Lights (Adds ambient illumination along the concourse)
+-- Mall Ceiling Lights (Concourse illumination)
 ---------------------------------------------------------------------
 local lightsFolder = getOrCreate(workspace, "Folder", "MallLighting")
 if #lightsFolder:GetChildren() == 0 then
@@ -56,47 +57,30 @@ if #lightsFolder:GetChildren() == 0 then
 	for i, z in ipairs(zPositions) do
 		local lightPart = Instance.new("Part")
 		lightPart.Name = "CeilingLight_" .. i
-		lightPart.Size = Vector3.new(20, 1, 4)
+		lightPart.Size = Vector3.new(24, 1.2, 4)
 		lightPart.Position = Vector3.new(0, 28, z)
 		lightPart.Anchored = true
 		lightPart.CanCollide = false
 		lightPart.CanQuery = false
 		lightPart.CanTouch = false
 		lightPart.Material = Enum.Material.Neon
-		lightPart.Color = Color3.fromRGB(255, 240, 255)
-		lightPart.Transparency = 0.2
+		lightPart.Color = Color3.fromRGB(255, 245, 255)
+		lightPart.Transparency = 0.15
 		lightPart.Parent = lightsFolder
 
 		local pointLight = Instance.new("PointLight")
-		pointLight.Color = (z > 40 and Color3.fromRGB(255, 200, 160)) -- Warm for Plaza / Food
-			or (z > -60 and Color3.fromRGB(160, 220, 255)) -- Cool Cyan for Tech
-			or Color3.fromRGB(255, 170, 240) -- Neon Magenta for Vault
-		pointLight.Brightness = 1.8
-		pointLight.Range = 65
+		pointLight.Color = (z > 40 and Color3.fromRGB(255, 210, 170))
+			or (z > -60 and Color3.fromRGB(170, 230, 255))
+			or Color3.fromRGB(255, 180, 245)
+		pointLight.Brightness = 2.0
+		pointLight.Range = 70
 		pointLight.Shadows = false
 		pointLight.Parent = lightPart
 	end
 end
 
 ---------------------------------------------------------------------
--- Neon signs: any Part inside Workspace > NeonSigns glows with a light
----------------------------------------------------------------------
-local signs = workspace:FindFirstChild("NeonSigns")
-if signs then
-	for _, part in ipairs(signs:GetDescendants()) do
-		if part:IsA("BasePart") then
-			part.Material = Enum.Material.Neon
-			local light = part:FindFirstChildOfClass("PointLight") or Instance.new("PointLight")
-			light.Color = part.Color
-			light.Range = 16
-			light.Brightness = 2.0
-			light.Parent = part
-		end
-	end
-end
-
----------------------------------------------------------------------
--- Glowing, pulsing drop zones with a "DROP HERE" label
+-- Glowing Drop Zones with Vertical Light Beacons
 ---------------------------------------------------------------------
 local bases = workspace:WaitForChild("Bases", 10)
 if bases then
@@ -128,21 +112,46 @@ if bases then
 				label.Parent = surface
 			end
 
+			-- Vertical neon beacon shooting into ceiling
+			local beacon = zone:FindFirstChild("Beacon")
+			if not beacon then
+				beacon = Instance.new("Part")
+				beacon.Name = "Beacon"
+				beacon.Size = Vector3.new(4, 28, 4)
+				beacon.Position = zone.Position + Vector3.new(0, 14, 0)
+				beacon.Anchored = true
+				beacon.CanCollide = false
+				beacon.CanQuery = false
+				beacon.CanTouch = false
+				beacon.Material = Enum.Material.ForceField
+				beacon.Color = Color3.fromRGB(74, 222, 128)
+				beacon.Transparency = 0.75
+				beacon.Parent = zone
+
+				TweenService:Create(
+					beacon,
+					TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+					{ Transparency = 0.92 }
+				):Play()
+			end
+
 			TweenService:Create(
 				zone,
 				TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-				{ Transparency = 0.6 }
+				{ Transparency = 0.55 }
 			):Play()
 		end
 	end
 end
 
 ---------------------------------------------------------------------
--- Guard: flashlight, turns red and shows "!" while chasing
+-- Guard: Menacing Red Catch Radius & Flashlight
 ---------------------------------------------------------------------
 local guard = workspace:WaitForChild("Guard", 10)
 if guard then
 	local head = guard:WaitForChild("Head", 5) or guard:WaitForChild("HumanoidRootPart", 5)
+	local root = guard:WaitForChild("HumanoidRootPart", 5)
+
 	if head then
 		local flashlight = head:FindFirstChildOfClass("SpotLight") or Instance.new("SpotLight")
 		flashlight.Face = Enum.NormalId.Front
@@ -173,10 +182,77 @@ if guard then
 			bang.Parent = alert
 		end
 
-		guard:GetAttributeChangedSignal("Chasing"):Connect(function()
-			local chasing = guard:GetAttribute("Chasing") == true
-			alert.Enabled = chasing
-			flashlight.Color = chasing and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(255, 245, 215)
+		-- Floor Catch Radius Ring
+		if root and not root:FindFirstChild("CatchRing") then
+			local catchRing = Instance.new("Part")
+			catchRing.Name = "CatchRing"
+			catchRing.Shape = Enum.PartType.Cylinder
+			catchRing.Size = Vector3.new(0.2, 10, 10) -- 5 stud radius
+			catchRing.CFrame = root.CFrame * CFrame.Angles(0, 0, math.rad(90))
+			catchRing.Material = Enum.Material.Neon
+			catchRing.Color = Color3.fromRGB(255, 60, 60)
+			catchRing.Transparency = 0.75
+			catchRing.CanCollide = false
+			catchRing.CanTouch = false
+			catchRing.CanQuery = false
+			catchRing.Parent = root
+
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = root
+			weld.Part1 = catchRing
+			weld.Parent = catchRing
+
+			guard:GetAttributeChangedSignal("Chasing"):Connect(function()
+				local chasing = guard:GetAttribute("Chasing") == true
+				alert.Enabled = chasing
+				flashlight.Color = chasing and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(255, 245, 215)
+				catchRing.Transparency = chasing and 0.45 or 0.82
+			end)
+		end
+	end
+end
+
+---------------------------------------------------------------------
+-- Player Sprint Trail Particles (When upgraded or SuperSpeed)
+---------------------------------------------------------------------
+local function setupPlayerTrails(char)
+	local hrp = char:WaitForChild("HumanoidRootPart", 5)
+	if not hrp or hrp:FindFirstChild("SpeedTrail") then return end
+
+	local trailPart = Instance.new("ParticleEmitter")
+	trailPart.Name = "SpeedTrail"
+	trailPart.Rate = 0
+	trailPart.Speed = NumberRange.new(2, 6)
+	trailPart.Lifetime = NumberRange.new(0.3, 0.6)
+	trailPart.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.7),
+		NumberSequenceKeypoint.new(1, 0),
+	})
+	trailPart.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.4),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	trailPart.Color = ColorSequence.new(Color3.fromRGB(56, 224, 255), Color3.fromRGB(255, 77, 166))
+	trailPart.LightEmission = 1
+	trailPart.Parent = hrp
+
+	local hum = char:WaitForChild("Humanoid", 5)
+	if hum then
+		hum.Running:Connect(function(speed)
+			if speed > 22 then
+				trailPart.Rate = 25
+			else
+				trailPart.Rate = 0
+			end
 		end)
 	end
+end
+
+Players.PlayerAdded:Connect(function(p)
+	p.CharacterAdded:Connect(setupPlayerTrails)
+	if p.Character then setupPlayerTrails(p.Character) end
+end)
+for _, p in ipairs(Players:GetPlayers()) do
+	if p.Character then setupPlayerTrails(p.Character) end
+	p.CharacterAdded:Connect(setupPlayerTrails)
 end

@@ -202,10 +202,47 @@ local carryPill = make("TextLabel", {
 round(carryPill, 14)
 stroke(carryPill, Theme.Cyan, 2)
 
+local function showCoinPopup(amount)
+	if amount <= 0 then return end
+	local popup = make("TextLabel", {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, math.random(-40, 40), 0, 58),
+		Size = UDim2.fromOffset(120, 24),
+		BackgroundTransparency = 1,
+		Font = TITLE_FONT,
+		TextSize = 18,
+		TextColor3 = Theme.Gold,
+		TextStrokeColor3 = Color3.fromRGB(20, 15, 30),
+		TextStrokeTransparency = 0,
+		Text = "+" .. fmt(amount) .. " 🪙",
+	}, gui)
+
+	local tween = TweenService:Create(
+		popup,
+		TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{
+			Position = popup.Position - UDim2.fromOffset(0, 36),
+			TextTransparency = 1,
+			TextStrokeTransparency = 1,
+		}
+	)
+	tween:Play()
+	tween.Completed:Once(function()
+		popup:Destroy()
+	end)
+end
+
+local lastCoins = nil
 local function refreshHud()
 	local stats = player:FindFirstChild("leaderstats")
 	local coins = stats and stats:FindFirstChild("Coins")
-	coinText.Text = fmt(coins and coins.Value or 0)
+	local currentCoins = coins and coins.Value or 0
+	if lastCoins and currentCoins > lastCoins then
+		showCoinPopup(currentCoins - lastCoins)
+	end
+	lastCoins = currentCoins
+
+	coinText.Text = fmt(currentCoins)
 	incomeText.Text = "+" .. fmt(player:GetAttribute("IncomePerSec") or 0) .. "/s"
 	carryPill.Text = string.format(
 		"🎒 %d/%d     🏠 %d/%d",
