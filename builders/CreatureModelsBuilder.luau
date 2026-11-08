@@ -197,4 +197,60 @@ makePart(c10, "Meatball2", Vector3.new(1.0, 1.0, 1.0), Vector3.new(0.8, 1.1, -0.
 makePart(c10, "KingCrown", Vector3.new(2.4, 0.7, 2.4), Vector3.new(0, 1.9, 0), Color3.fromRGB(255, 215, 30), Enum.Material.Neon, Enum.PartType.Cylinder)
 c10.Parent = creaturesFolder
 
-print("✨ ALL 10 3D CREATURE MODELS CREATED IN ServerStorage > Creatures! ✨")
+---------------------------------------------------------------------
+-- 11. Glitchy Gelato Ghost (Ethereal Ice Cream Ghost + Neon Horns)
+---------------------------------------------------------------------
+local c11 = createBaseModel("GlitchyGelatoGhost", Vector3.new(2.8, 3.4, 2.8), Color3.fromRGB(200, 170, 255), Enum.Material.ForceField, Enum.PartType.Ball)
+makePart(c11, "GelatoScoop", Vector3.new(2.4, 1.8, 2.4), Vector3.new(0, 1.2, 0), Color3.fromRGB(160, 220, 255), Enum.Material.Neon, Enum.PartType.Ball)
+makePart(c11, "GhostSkirt", Vector3.new(3.0, 0.6, 3.0), Vector3.new(0, -1.6, 0), Color3.fromRGB(220, 190, 255), Enum.Material.ForceField, Enum.PartType.Cylinder)
+-- Glowing Glitch Eyes & Horns
+makePart(c11, "GlitchEyeL", Vector3.new(0.5, 0.2, 0.1), Vector3.new(-0.6, 0.4, 1.35), Color3.fromRGB(255, 60, 180), Enum.Material.Neon)
+makePart(c11, "GlitchEyeR", Vector3.new(0.2, 0.5, 0.1), Vector3.new(0.6, 0.4, 1.35), Color3.fromRGB(56, 224, 255), Enum.Material.Neon)
+makePart(c11, "GlitchHornL", Vector3.new(0.4, 1.0, 0.4), Vector3.new(-0.8, 2.0, 0), Color3.fromRGB(255, 50, 160), Enum.Material.Neon)
+makePart(c11, "GlitchHornR", Vector3.new(0.4, 1.0, 0.4), Vector3.new(0.8, 2.0, 0), Color3.fromRGB(56, 224, 255), Enum.Material.Neon)
+c11.Parent = creaturesFolder
+
+---------------------------------------------------------------------
+-- 12. Ninja Nugget Sensei (Golden Nugget + Ninja Headband + Katanas)
+---------------------------------------------------------------------
+local c12 = createBaseModel("NinjaNuggetSensei", Vector3.new(3.2, 2.4, 2.0), Color3.fromRGB(230, 165, 60), Enum.Material.SmoothPlastic)
+-- Black Ninja Headband
+makePart(c12, "Headband", Vector3.new(3.3, 0.5, 2.1), Vector3.new(0, 0.6, 0), Color3.fromRGB(25, 25, 30), Enum.Material.SmoothPlastic)
+makePart(c12, "HeadbandKnot", Vector3.new(0.6, 0.6, 0.8), Vector3.new(0, 0.6, -1.1), Color3.fromRGB(25, 25, 30))
+-- Focused Ninja Eyes
+makePart(c12, "NinjaEyeL", Vector3.new(0.5, 0.15, 0.1), Vector3.new(-0.6, 0.6, 1.05), Color3.fromRGB(255, 255, 255), Enum.Material.Neon)
+makePart(c12, "NinjaEyeR", Vector3.new(0.5, 0.15, 0.1), Vector3.new(0.6, 0.6, 1.05), Color3.fromRGB(255, 255, 255), Enum.Material.Neon)
+-- Sheathed Katanas on Back
+makePart(c12, "Katana1", Vector3.new(0.25, 3.2, 0.25), Vector3.new(-0.5, 0.4, -1.15), Color3.fromRGB(200, 200, 210), Enum.Material.Metal)
+makePart(c12, "Katana2", Vector3.new(0.25, 3.2, 0.25), Vector3.new(0.5, 0.4, -1.15), Color3.fromRGB(200, 200, 210), Enum.Material.Metal)
+c12.Parent = creaturesFolder
+
+---------------------------------------------------------------------
+-- 13. Cosmic Corndog Captain (Battered Corndog + Stick + Galaxy Drizzle)
+---------------------------------------------------------------------
+local c13 = createBaseModel("CosmicCorndogCaptain", Vector3.new(2.2, 3.8, 2.2), Color3.fromRGB(215, 145, 55), Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
+-- Wooden Stick
+makePart(c13, "Stick", Vector3.new(0.4, 2.0, 0.4), Vector3.new(0, -2.6, 0), Color3.fromRGB(190, 150, 100), Enum.Material.Wood)
+-- Cosmic Galaxy Drizzle
+makePart(c13, "CosmicDrizzle", Vector3.new(2.35, 1.8, 2.35), Vector3.new(0, 0.4, 0), Color3.fromRGB(150, 40, 220), Enum.Material.Neon, Enum.PartType.Cylinder)
+-- Captain's Sailor Hat
+makePart(c13, "CapBrim", Vector3.new(2.4, 0.3, 2.4), Vector3.new(0, 2.0, 0.2), Color3.fromRGB(25, 25, 40))
+makePart(c13, "CapCrown", Vector3.new(1.8, 0.8, 1.8), Vector3.new(0, 2.5, 0), Color3.fromRGB(245, 245, 255))
+makePart(c13, "GoldAnchor", Vector3.new(0.5, 0.5, 0.1), Vector3.new(0, 2.5, 0.95), Color3.fromRGB(255, 215, 40), Enum.Material.Neon)
+c13.Parent = creaturesFolder
+
+---------------------------------------------------------------------
+-- 14. Holo Hotdog Hero (Cyber Hotdog Bun + Laser Visor)
+---------------------------------------------------------------------
+local c14 = createBaseModel("HoloHotdogHero", Vector3.new(2.0, 4.0, 2.0), Color3.fromRGB(220, 50, 60), Enum.Material.Neon, Enum.PartType.Cylinder)
+-- Cyan Cyber Bun
+makePart(c14, "CyberBunL", Vector3.new(0.8, 3.6, 1.4), Vector3.new(-1.0, 0, 0), Color3.fromRGB(56, 189, 248), Enum.Material.SmoothPlastic)
+makePart(c14, "CyberBunR", Vector3.new(0.8, 3.6, 1.4), Vector3.new(1.0, 0, 0), Color3.fromRGB(56, 189, 248), Enum.Material.SmoothPlastic)
+-- Neon Mustard & Ketchup laser strips
+makePart(c14, "MustardLaser", Vector3.new(0.2, 3.2, 0.2), Vector3.new(-0.25, 0, 1.05), Color3.fromRGB(255, 230, 40), Enum.Material.Neon)
+makePart(c14, "KetchupLaser", Vector3.new(0.2, 3.2, 0.2), Vector3.new(0.25, 0, 1.05), Color3.fromRGB(255, 30, 60), Enum.Material.Neon)
+-- Cyber Visor
+makePart(c14, "Visor", Vector3.new(1.8, 0.6, 0.6), Vector3.new(0, 1.0, 1.05), Color3.fromRGB(56, 224, 255), Enum.Material.Neon)
+c14.Parent = creaturesFolder
+
+print("✨ ALL 14 3D CREATURE MODELS CREATED IN ServerStorage > Creatures! ✨")
